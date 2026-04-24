@@ -23,6 +23,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { AnimatedSection } from "@/components/animated-section";
+import { HeroLogoVisual } from "@/components/home/hero-logo-visual";
 import { SiteFrame } from "@/components/layout/site-frame";
 import { InlineWaitlistCta } from "@/components/waitlist/inline-waitlist-cta";
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
@@ -33,13 +34,6 @@ import {
   TRUST_ITEMS,
 } from "@/lib/content";
 import { BASE_WAITLIST_COUNT } from "@/lib/waitlist-schema";
-
-const HeroHeartScene = dynamic(() => import("@/components/three/hero-heart-scene"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full animate-pulse rounded-3xl bg-brand-deep/10" />
-  ),
-});
 
 const SolutionPhoneScene = dynamic(
   () => import("@/components/three/solution-phone-scene"),
@@ -167,9 +161,7 @@ export function HomePage() {
   const solutionRef = useRef<HTMLElement>(null);
   const flowRef = useRef<HTMLElement>(null);
   const [activeFeature, setActiveFeature] = useState(0);
-  const [heroProgress, setHeroProgress] = useState(0);
   const [solutionProgress, setSolutionProgress] = useState(0);
-  const [loadHero3D, setLoadHero3D] = useState(false);
   const [loadSolution3D, setLoadSolution3D] = useState(false);
 
   const heroScroll = useScroll({
@@ -194,33 +186,9 @@ export function HomePage() {
 
   const arrowOpacity = useTransform(heroScroll.scrollYProgress, [0, 0.25], [1, 0]);
 
-  useMotionValueEvent(heroScroll.scrollYProgress, "change", (value) => {
-    setHeroProgress(Math.min(1, Math.max(0, value * 1.45)));
-  });
-
   useMotionValueEvent(solutionScroll.scrollYProgress, "change", (value) => {
     setSolutionProgress(Math.min(1, Math.max(0, value)));
   });
-
-  useEffect(() => {
-    let timeoutId: number | undefined;
-    const w = window as Window & {
-      requestIdleCallback?: (cb: () => void) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (w.requestIdleCallback) {
-      const callbackId = w.requestIdleCallback(() => setLoadHero3D(true));
-      return () => {
-        if (w.cancelIdleCallback) {
-          w.cancelIdleCallback(callbackId);
-        }
-      };
-    }
-
-    timeoutId = window.setTimeout(() => setLoadHero3D(true), 900);
-    return () => window.clearTimeout(timeoutId);
-  }, []);
 
   useEffect(() => {
     if (isSolutionInView) {
@@ -243,9 +211,9 @@ export function HomePage() {
               AI-Powered Family Health Management for India
             </p>
 
-            <h1 className="max-w-2xl font-display text-[2.25rem] italic leading-[1.04] text-ink sm:text-6xl">
-              Your family&apos;s health history lives in a shoebox. It
-              <span className="text-brand-deep"> shouldn&apos;t.</span>
+            <h1 className="max-w-2xl font-body text-[2.2rem] font-semibold leading-[1.02] tracking-[-0.02em] text-ink sm:text-[4.2rem]">
+              Your family&apos;s health history lives in a shoebox.
+              <span className="font-display italic text-brand-deep"> It shouldn&apos;t.</span>
             </h1>
 
             <p className="max-w-xl text-[1.05rem] leading-relaxed text-ink-soft sm:text-[1.18rem]">
@@ -276,18 +244,14 @@ export function HomePage() {
             </div>
           </AnimatedSection>
 
-          <div className="relative h-[60vw] min-h-[320px] max-h-[560px] w-full sm:h-[56vh] lg:h-[68vh]">
-            {loadHero3D ? (
-              <HeroHeartScene progress={heroProgress} />
-            ) : (
-              <div className="h-full w-full rounded-3xl bg-brand-deep/10" />
-            )}
+          <div className="relative h-[72vw] min-h-[250px] max-h-[420px] w-full sm:h-[54vh] sm:max-h-[520px] lg:h-[66vh]">
+            <HeroLogoVisual />
           </div>
         </div>
 
         <motion.div
           style={{ opacity: arrowOpacity }}
-          className="mt-10 flex justify-center lg:mt-4"
+          className="mt-10 hidden justify-center lg:mt-4 lg:flex"
         >
           <div className="inline-flex animate-bounce flex-col items-center text-brand-deep">
             <ArrowDown className="size-5" />
