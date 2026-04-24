@@ -1,13 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { BrandLogo } from "@/components/brand-logo";
 import { WAITLIST_USE_CASES } from "@/lib/content";
 import { trackWaitlistFunnel } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -46,11 +45,8 @@ export function WaitlistForm({
   showCount = true,
   initialEmail,
 }: WaitlistFormProps) {
+  const router = useRouter();
   const [serverError, setServerError] = useState<string>("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(
-    "You're in. We'll be in touch soon."
-  );
   const [count, setCount] = useState(BASE_WAITLIST_COUNT);
 
   const normalizedInitialEmail = useMemo(
@@ -71,7 +67,6 @@ export function WaitlistForm({
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistFormSchema),
@@ -149,8 +144,6 @@ export function WaitlistForm({
         return;
       }
 
-      setIsSuccess(true);
-      setSuccessMessage(data.message ?? "You're in. We'll be in touch soon.");
       trackWaitlistFunnel("submit_success", source, {
         form_variant: "full",
         email_sent: Boolean(data.emailSent),
@@ -158,7 +151,15 @@ export function WaitlistForm({
       if (typeof data.count === "number") {
         setCount(data.count);
       }
-      reset(defaultValues);
+
+      const thankYouUrl = new URL("/thank-you", window.location.origin);
+      thankYouUrl.searchParams.set("emailSent", data.emailSent ? "1" : "0");
+      thankYouUrl.searchParams.set("source", source);
+      if (values.email) {
+        thankYouUrl.searchParams.set("email", values.email);
+      }
+
+      router.push(thankYouUrl.pathname + thankYouUrl.search);
     } catch {
       trackWaitlistFunnel("submit_failed", source, {
         form_variant: "full",
@@ -276,33 +277,6 @@ export function WaitlistForm({
 
         {serverError ? <p className="text-sm text-coral">{serverError}</p> : null}
 
-        <AnimatePresence>
-          {isSuccess ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="flex items-center gap-3 rounded-xl border border-brand-bright/35 bg-brand-bright/10 p-3"
-            >
-              <motion.div
-                initial={{ scale: 0.6 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                className="text-brand-deep"
-              >
-                <CheckCircle2 className="size-5" />
-              </motion.div>
-              <div>
-                <p className="text-sm font-semibold text-brand-deep">
-                  {successMessage}
-                </p>
-                <div className="mt-1">
-                  <BrandLogo showWordmark={false} iconClassName="size-6" />
-                </div>
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
       </form>
 
       {showCount ? (

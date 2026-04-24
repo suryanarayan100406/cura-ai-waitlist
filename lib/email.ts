@@ -74,7 +74,7 @@ function getEmailConfig() {
   const from = normalizeFromAddress(process.env.WAITLIST_FROM_EMAIL);
   const replyTo =
     extractEmailAddress(process.env.WAITLIST_REPLY_TO) || extractEmailAddress(from);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://curai.health";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cura.suryaxnarayan.in";
 
   return {
     apiKey,

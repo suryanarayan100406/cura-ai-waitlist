@@ -40,7 +40,7 @@ npm run dev
 1. NEXT_PUBLIC_SITE_URL
 - Your frontend base URL.
 - Local value: http://localhost:3000
-- Production value: your Netlify site URL or custom domain.
+- Production value: https://cura.suryaxnarayan.in or your Netlify site URL.
 
 2. NEXT_PUBLIC_SUPABASE_URL
 - Supabase project URL.
@@ -92,6 +92,7 @@ Important:
 1. For local: NEXT_PUBLIC_SITE_URL=http://localhost:3000
 2. For Netlify: NEXT_PUBLIC_SITE_URL=https://your-site.netlify.app
 3. If you later attach custom domain, update this value to your final domain and redeploy.
+4. For your current setup, set it to https://cura.suryaxnarayan.in.
 
 ### C) (Optional) Get GA4 ID
 
@@ -129,6 +130,8 @@ This creates:
 
 - GET /api/waitlist -> returns live waitlist count payload
 - POST /api/waitlist -> validates input, inserts into Supabase, handles duplicate email gracefully, returns updated count
+
+After successful submission, users are redirected to /thank-you.
 
 Expected POST payload:
 
