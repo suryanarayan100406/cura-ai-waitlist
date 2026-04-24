@@ -5,9 +5,6 @@ import { SiteFrame } from "@/components/layout/site-frame";
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
 import { TEAM_PLACEHOLDERS } from "@/lib/content";
 
-const placeholderPortrait =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nODAwJyBoZWlnaHQ9JzUwMCcgdmlld0JveD0nMCAwIDgwMCA1MDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nMCcgeTE9JzAnIHgyPScxJyB5Mj0nMSc+PHN0b3Agc3RvcC1jb2xvcj0nIzJENkE0Ricgb2Zmc2V0PScwJy8+PHN0b3Agc3RvcC1jb2xvcj0nIzUyQjc4OCcgb2Zmc2V0PScxJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzgwMCcgaGVpZ2h0PSc1MDAnIGZpbGw9InVybCgjZykiLz48Y2lyY2xlIGN4PSc0MDAnIGN5PScyNDAnIHI9JzkwJyBmaWxsPSdyZ2JhKDI1MCwyNDgsMjQzLDAuMzUpJy8+PHJlY3QgeD0nMjcwJyB5PSczMzAnIHdpZHRoPScyNjAnIGhlaWdodD0nMTEwJyByeD0nNTUnIGZpbGw9J3JnYmEoMjUwLDI0OCwyNDMsMC4yOCknLz48L3N2Zz4=";
-
 export default function AboutPage() {
   return (
     <SiteFrame>
@@ -44,16 +41,17 @@ export default function AboutPage() {
             </AnimatedSection>
 
             <AnimatedSection className="rounded-3xl border border-brand-deep/15 bg-white p-4 shadow-sm">
-              <Image
-                src={placeholderPortrait}
-                alt="Cura AI mission placeholder"
-                width={800}
-                height={500}
-                placeholder="blur"
-                blurDataURL={placeholderPortrait}
-                unoptimized
-                className="h-auto w-full rounded-2xl"
-              />
+              <div className="relative flex h-[320px] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-brand-deep/20 to-brand-bright/25">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(250,248,243,0.5),transparent_48%)]" />
+                <Image
+                  src="/cura-logo.png"
+                  alt="Cura AI logo"
+                  width={280}
+                  height={280}
+                  sizes="(max-width: 768px) 180px, 280px"
+                  className="relative h-auto w-[180px] object-contain sm:w-[240px]"
+                />
+              </div>
               <blockquote className="mt-4 border-l-2 border-brand-bright pl-4 font-display text-2xl italic leading-tight text-brand-deep">
                 &ldquo;Every Indian family deserves a doctor-quality understanding of
                 their own health.&rdquo;

@@ -16,7 +16,7 @@ export function Footer() {
         <div className="space-y-4">
           <BrandLogo
             textClassName="text-cream"
-            iconClassName="text-cream"
+            iconClassName="drop-shadow-[0_2px_10px_rgba(82,183,136,0.35)]"
             className="w-max"
           />
           <p className="max-w-xs text-sm text-cream/80">
@@ -38,7 +38,7 @@ export function Footer() {
               </SocialIcon>
             </Link>
             <Link
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/company/cura--ai"
               target="_blank"
               rel="noreferrer"
               className="inline-flex size-9 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition hover:border-cream/50 hover:text-cream"
@@ -51,7 +51,7 @@ export function Footer() {
               </SocialIcon>
             </Link>
             <Link
-              href="https://instagram.com"
+              href="https://www.instagram.com/cura.aii"
               target="_blank"
               rel="noreferrer"
               className="inline-flex size-9 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition hover:border-cream/50 hover:text-cream"

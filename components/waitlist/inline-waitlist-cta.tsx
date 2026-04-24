@@ -2,10 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { trackWaitlistFunnel } from "@/lib/analytics";
 import { WAITLIST_USE_CASES } from "@/lib/content";
 import { quickWaitlistSchema } from "@/lib/waitlist-schema";
 
@@ -14,6 +15,8 @@ const heroSchema = z.object({
 });
 
 type HeroFormValues = z.infer<typeof heroSchema>;
+
+const source = "hero-cta";
 
 export function InlineWaitlistCta() {
   const [message, setMessage] = useState<string>("");
@@ -28,8 +31,19 @@ export function InlineWaitlistCta() {
     defaultValues: { email: "" },
   });
 
+  useEffect(() => {
+    trackWaitlistFunnel("form_view", source, {
+      form_variant: "inline",
+    });
+  }, []);
+
   const onSubmit = async (values: HeroFormValues) => {
     setMessage("");
+
+    trackWaitlistFunnel("submit_started", source, {
+      form_variant: "inline",
+    });
+
     try {
       const response = await fetch("/api/waitlist", {
         method: "POST",
@@ -38,25 +52,50 @@ export function InlineWaitlistCta() {
           name: "Homepage Visitor",
           email: values.email,
           use_case: WAITLIST_USE_CASES[0].value,
-          source: "hero-cta",
+          source,
         }),
       });
       const data: { message?: string } = await response.json();
 
       if (!response.ok) {
+        trackWaitlistFunnel(
+          response.status === 409 ? "duplicate_email" : "submit_failed",
+          source,
+          {
+            form_variant: "inline",
+            status_code: response.status,
+          }
+        );
         setMessage(data.message ?? "Could not submit. Please try again.");
         return;
       }
 
+      trackWaitlistFunnel("submit_success", source, {
+        form_variant: "inline",
+      });
       setMessage("You're in. We'll be in touch soon.");
       reset({ email: "" });
     } catch {
+      trackWaitlistFunnel("submit_failed", source, {
+        form_variant: "inline",
+        status_code: "network_error",
+      });
       setMessage("Network error. Please try again.");
     }
   };
 
+  const onInvalidSubmit = () => {
+    trackWaitlistFunnel("validation_error", source, {
+      form_variant: "inline",
+    });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl" noValidate>
+    <form
+      onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+      className="w-full max-w-xl"
+      noValidate
+    >
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="flex-1">
           <input

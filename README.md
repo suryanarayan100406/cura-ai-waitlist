@@ -70,11 +70,23 @@ Expected POST payload:
 - `npm run start` -> run built app
 - `npm run lint` -> lint checks
 
-## Deploy (Vercel)
+## Deploy (Netlify)
 
 1. Push repository to GitHub.
-2. Import the repo in Vercel.
-3. Add environment variables from `.env.example`.
-4. Deploy.
+2. In Netlify, create a site from your GitHub repo.
+3. Build command is `npm run build` (already configured in `netlify.toml`).
+4. Add environment variables from `.env.example`.
+5. Deploy.
 
-The site is optimized for mobile-first usage and includes deferred 3D loading for better Core Web Vitals.
+### Required environment variables
+
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+### Optional analytics variable
+
+- `NEXT_PUBLIC_GA_ID` (Google Analytics 4 Measurement ID)
+
+The site includes waitlist funnel conversion events and deferred 3D loading for stronger Core Web Vitals.

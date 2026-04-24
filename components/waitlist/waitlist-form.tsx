@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { WAITLIST_USE_CASES } from "@/lib/content";
+import { trackWaitlistFunnel } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { BASE_WAITLIST_COUNT, formatFamilyCount } from "@/lib/waitlist-schema";
 
@@ -68,6 +69,10 @@ export function WaitlistForm({
   });
 
   useEffect(() => {
+    trackWaitlistFunnel("form_view", source, {
+      form_variant: "full",
+    });
+
     const loadCount = async () => {
       try {
         const response = await fetch("/api/waitlist", { cache: "no-store" });
@@ -84,10 +89,16 @@ export function WaitlistForm({
     };
 
     void loadCount();
-  }, []);
+  }, [source]);
 
   const onSubmit = async (values: WaitlistFormValues) => {
     setServerError("");
+
+    trackWaitlistFunnel("submit_started", source, {
+      form_variant: "full",
+      has_phone: Boolean(values.phone),
+      use_case: values.use_case,
+    });
 
     const payload = {
       name: values.name,
@@ -108,6 +119,16 @@ export function WaitlistForm({
 
       if (!response.ok) {
         setServerError(data.message ?? "Could not submit. Please try again.");
+
+        trackWaitlistFunnel(
+          response.status === 409 ? "duplicate_email" : "submit_failed",
+          source,
+          {
+            form_variant: "full",
+            status_code: response.status,
+          }
+        );
+
         if (response.status === 409 && typeof data.count === "number") {
           setCount(data.count);
         }
@@ -115,18 +136,35 @@ export function WaitlistForm({
       }
 
       setIsSuccess(true);
+      trackWaitlistFunnel("submit_success", source, {
+        form_variant: "full",
+      });
       if (typeof data.count === "number") {
         setCount(data.count);
       }
       reset(defaultValues);
     } catch {
+      trackWaitlistFunnel("submit_failed", source, {
+        form_variant: "full",
+        status_code: "network_error",
+      });
       setServerError("Network error. Please check your internet and try again.");
     }
   };
 
+  const onInvalidSubmit = () => {
+    trackWaitlistFunnel("validation_error", source, {
+      form_variant: "full",
+    });
+  };
+
   return (
     <div className={cn("rounded-3xl border border-brand-deep/15 bg-white p-6 shadow-sm sm:p-8", className)}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form
+        onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+        className="space-y-4"
+        noValidate
+      >
         <div>
           <label className="mb-1.5 block text-sm font-medium text-ink-soft" htmlFor="name">
             Full name
