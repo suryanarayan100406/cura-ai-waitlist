@@ -9,6 +9,7 @@ type EmailSendResult =
   | { sent: false; reason: "email-not-configured" | "provider-error" };
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function escapeHtml(input: string): string {
   const map: Record<string, string> = {
@@ -23,15 +24,46 @@ function escapeHtml(input: string): string {
 }
 
 function extractEmailAddress(value?: string): string | undefined {
+  const normalized = normalizeFromAddress(value);
+  if (!normalized) {
+    return undefined;
+  }
+
+  const bracketMatch = normalized.match(/<([^>]+)>/);
+  const candidate = (bracketMatch ? bracketMatch[1] : normalized).trim().toLowerCase();
+
+  if (EMAIL_PATTERN.test(candidate)) {
+    return candidate;
+  }
+
+  return undefined;
+}
+
+function normalizeFromAddress(value?: string): string | undefined {
   if (!value) {
     return undefined;
   }
 
-  const bracketMatch = value.match(/<([^>]+)>/);
-  const candidate = (bracketMatch ? bracketMatch[1] : value).trim();
+  const trimmed = value.trim();
 
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
-    return candidate;
+  const angleFormatMatch = trimmed.match(/^(.*?)<\s*([^<>\s@]+@[^<>\s@]+\.[^<>\s@]+)\s*>$/);
+  if (angleFormatMatch) {
+    const name = angleFormatMatch[1].trim().replace(/^"|"$/g, "");
+    const email = angleFormatMatch[2].trim().toLowerCase();
+    return name ? `${name} <${email}>` : email;
+  }
+
+  if (EMAIL_PATTERN.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+
+  const trailingEmailMatch = trimmed.match(
+    /^(.*?)\s+([^\s@]+@[^\s@]+\.[^\s@]+)$/
+  );
+  if (trailingEmailMatch) {
+    const name = trailingEmailMatch[1].trim().replace(/^"|"$/g, "");
+    const email = trailingEmailMatch[2].trim().toLowerCase();
+    return name ? `${name} <${email}>` : email;
   }
 
   return undefined;
@@ -39,8 +71,9 @@ function extractEmailAddress(value?: string): string | undefined {
 
 function getEmailConfig() {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.WAITLIST_FROM_EMAIL;
-  const replyTo = process.env.WAITLIST_REPLY_TO || extractEmailAddress(from);
+  const from = normalizeFromAddress(process.env.WAITLIST_FROM_EMAIL);
+  const replyTo =
+    extractEmailAddress(process.env.WAITLIST_REPLY_TO) || extractEmailAddress(from);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://curai.health";
 
   return {
