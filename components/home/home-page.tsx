@@ -200,18 +200,18 @@ export function HomePage() {
     <SiteFrame>
       <section
         ref={heroRef}
-        className="bg-grid-soft relative overflow-hidden px-4 pb-12 pt-28 sm:px-6 lg:px-10"
+          className="bg-grid-soft relative overflow-hidden px-4 pb-10 pt-24 sm:px-6 sm:pt-28 lg:px-10"
       >
         <div className="pointer-events-none absolute -top-24 right-0 h-80 w-80 rounded-full bg-brand-bright/30 blur-3xl" />
         <div className="pointer-events-none absolute -left-16 bottom-16 h-72 w-72 rounded-full bg-brand-deep/20 blur-3xl" />
 
         <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <AnimatedSection className="space-y-7">
-            <p className="inline-flex w-max rounded-full border border-brand-deep/20 bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand-deep">
+            <p className="inline-flex w-full max-w-full items-center justify-center rounded-full border border-brand-deep/20 bg-white/70 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-brand-deep sm:w-max sm:justify-start sm:px-4 sm:text-xs sm:tracking-[0.16em]">
               AI-Powered Family Health Management for India
             </p>
 
-            <h1 className="max-w-2xl font-body text-[2.2rem] font-semibold leading-[1.02] tracking-[-0.02em] text-ink sm:text-[4.2rem]">
+            <h1 className="max-w-2xl break-words font-body text-[clamp(2rem,11vw,4.2rem)] font-semibold leading-[1.02] tracking-[-0.01em] text-ink">
               Your family&apos;s health history lives in a shoebox.
               <span className="font-display italic text-brand-deep"> It shouldn&apos;t.</span>
             </h1>
@@ -224,7 +224,7 @@ export function HomePage() {
 
             <InlineWaitlistCta />
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-col items-start gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <div className="flex -space-x-2">
                 {["A", "R", "N"].map((initial) => (
                   <span
@@ -236,7 +236,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="text-sm text-ink-soft">2,400+ families already joined</p>
-              <div className="flex items-center gap-1 text-amber-500">
+              <div className="flex items-center gap-1 text-amber-500 sm:ml-0">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star key={index} className="size-4 fill-current" />
                 ))}
@@ -244,7 +244,7 @@ export function HomePage() {
             </div>
           </AnimatedSection>
 
-          <div className="relative h-[72vw] min-h-[250px] max-h-[420px] w-full sm:h-[54vh] sm:max-h-[520px] lg:h-[66vh]">
+          <div className="relative h-[52vw] min-h-[180px] max-h-[280px] w-full sm:h-[50vh] sm:min-h-[240px] sm:max-h-[520px] lg:h-[66vh]">
             <HeroLogoVisual />
           </div>
         </div>

@@ -15,6 +15,7 @@
 body {
   color: rgb(var(--ink));
   background: rgb(var(--cream));
+  overflow-x: hidden;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "liga", "clig", "kern";

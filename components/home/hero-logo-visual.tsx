@@ -27,7 +27,7 @@ export function HeroLogoVisual() {
           height={430}
           priority
           sizes="(max-width: 1024px) 55vw, 430px"
-          className="h-auto w-[58%] min-w-[180px] max-w-[430px] object-contain drop-shadow-[0_18px_26px_rgba(45,106,79,0.26)]"
+          className="h-auto w-[74%] min-w-[210px] max-w-[430px] object-contain drop-shadow-[0_18px_26px_rgba(45,106,79,0.26)] sm:w-[62%]"
         />
       </motion.div>
 
