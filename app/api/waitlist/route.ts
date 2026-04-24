@@ -103,11 +103,19 @@ export async function POST(request: Request) {
       console.warn("Waitlist saved but confirmation email was not sent.");
     }
 
+    const successMessage = emailResult.sent
+      ? "You're in. We sent a confirmation email."
+      : emailResult.reason === "email-not-configured"
+        ? "You're in. Confirmation email is not configured yet."
+        : "You're in. We could not send confirmation email right now.";
+
     const count = await getCurrentCount();
 
     return NextResponse.json(
       {
-        message: "You're in. We'll be in touch soon.",
+        message: successMessage,
+        emailSent: emailResult.sent,
+        emailReason: emailResult.sent ? null : emailResult.reason,
         count,
         countLabel: `${formatFamilyCount(count)}+`,
       },

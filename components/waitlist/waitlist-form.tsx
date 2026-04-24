@@ -48,6 +48,9 @@ export function WaitlistForm({
 }: WaitlistFormProps) {
   const [serverError, setServerError] = useState<string>("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(
+    "You're in. We'll be in touch soon."
+  );
   const [count, setCount] = useState(BASE_WAITLIST_COUNT);
 
   const normalizedInitialEmail = useMemo(
@@ -122,7 +125,11 @@ export function WaitlistForm({
         body: JSON.stringify(payload),
       });
 
-      const data: { message?: string; count?: number } = await response.json();
+      const data: {
+        message?: string;
+        count?: number;
+        emailSent?: boolean;
+      } = await response.json();
 
       if (!response.ok) {
         setServerError(data.message ?? "Could not submit. Please try again.");
@@ -143,8 +150,10 @@ export function WaitlistForm({
       }
 
       setIsSuccess(true);
+      setSuccessMessage(data.message ?? "You're in. We'll be in touch soon.");
       trackWaitlistFunnel("submit_success", source, {
         form_variant: "full",
+        email_sent: Boolean(data.emailSent),
       });
       if (typeof data.count === "number") {
         setCount(data.count);
@@ -285,7 +294,7 @@ export function WaitlistForm({
               </motion.div>
               <div>
                 <p className="text-sm font-semibold text-brand-deep">
-                  You are in. We will be in touch soon.
+                  {successMessage}
                 </p>
                 <div className="mt-1">
                   <BrandLogo showWordmark={false} iconClassName="size-6" />
