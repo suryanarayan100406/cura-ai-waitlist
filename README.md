@@ -62,6 +62,15 @@ npm run dev
 6. NODE_VERSION (Netlify recommended)
 - Set to 20 in Netlify for stable builds.
 
+7. RESEND_API_KEY (Optional, for confirmation emails)
+- API key from Resend.
+
+8. WAITLIST_FROM_EMAIL (Optional, for confirmation emails)
+- Verified sender address in Resend.
+
+9. WAITLIST_REPLY_TO (Optional, for confirmation emails)
+- Reply-to inbox shown to recipients.
+
 ## How To Get All Variables (Step-by-Step)
 
 ### A) Get Supabase values
@@ -90,6 +99,20 @@ Important:
 2. Admin -> Data Streams -> Web.
 3. Copy Measurement ID.
 4. Add as NEXT_PUBLIC_GA_ID in Netlify.
+
+### D) (Optional) Enable confirmation emails with Resend
+
+1. Create an account at Resend.
+2. Verify a sender domain or single sender identity.
+3. Create an API key in Resend dashboard.
+4. Add these variables in Netlify:
+- RESEND_API_KEY
+- WAITLIST_FROM_EMAIL
+- WAITLIST_REPLY_TO (optional)
+
+Notes:
+- If email variables are missing, waitlist signup still works.
+- Confirmation emails are sent only after successful waitlist insert.
 
 ## Supabase Setup
 
@@ -147,6 +170,9 @@ Required:
 
 Optional:
 - NEXT_PUBLIC_GA_ID
+- RESEND_API_KEY
+- WAITLIST_FROM_EMAIL
+- WAITLIST_REPLY_TO
 
 Recommended:
 - NODE_VERSION=20
@@ -158,6 +184,7 @@ Recommended:
 3. In Supabase table editor, confirm row added in waitlist.
 4. Submit same email again and confirm duplicate message.
 5. If GA is enabled, verify waitlist_funnel events in GA DebugView.
+6. If Resend is enabled, verify confirmation email is delivered.
 
 ## Troubleshooting
 
@@ -172,5 +199,9 @@ Recommended:
 3. Wrong Open Graph or metadata URL
 - Cause: NEXT_PUBLIC_SITE_URL still pointing to localhost.
 - Fix: update NEXT_PUBLIC_SITE_URL to production URL and redeploy.
+
+4. Waitlist works but no confirmation email
+- Cause: missing or invalid RESEND_API_KEY / WAITLIST_FROM_EMAIL.
+- Fix: verify sender in Resend, update env vars, redeploy.
 
 The site includes waitlist funnel conversion events and deferred 3D loading for stronger Core Web Vitals.

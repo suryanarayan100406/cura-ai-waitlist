@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { sendWaitlistConfirmationEmail } from "@/lib/email";
 import { getSupabaseServerClient, hasSupabaseConfig } from "@/lib/supabase";
 import {
   BASE_WAITLIST_COUNT,
@@ -90,6 +91,16 @@ export async function POST(request: Request) {
         { message: "Could not save your signup right now. Please try again." },
         { status: 500 }
       );
+    }
+
+    const emailResult = await sendWaitlistConfirmationEmail({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      useCase: parsed.data.use_case,
+    });
+
+    if (!emailResult.sent && emailResult.reason === "provider-error") {
+      console.warn("Waitlist saved but confirmation email was not sent.");
     }
 
     const count = await getCurrentCount();
