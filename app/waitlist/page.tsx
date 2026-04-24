@@ -11,7 +11,53 @@ import {
   WAITLIST_TESTIMONIALS,
 } from "@/lib/content";
 
-export default function WaitlistPage() {
+interface WaitlistPageProps {
+  searchParams?: {
+    email?: string | string[];
+    source?: string | string[];
+  };
+}
+
+function getFirstQueryValue(value: string | string[] | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function sanitizeSource(value: string | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (!/^[a-zA-Z0-9_-]{1,40}$/.test(trimmed)) {
+    return undefined;
+  }
+  return trimmed;
+}
+
+function sanitizeEmail(value: string | undefined): string {
+  if (!value) {
+    return "";
+  }
+  const trimmed = value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return "";
+  }
+  return trimmed;
+}
+
+export default function WaitlistPage({ searchParams }: WaitlistPageProps) {
+  const prefilledEmail = sanitizeEmail(getFirstQueryValue(searchParams?.email));
+  const redirectSource = sanitizeSource(getFirstQueryValue(searchParams?.source));
+
+  const heroSource = redirectSource
+    ? `${redirectSource}-full-form`
+    : "waitlist-page-hero";
+  const bottomSource = redirectSource
+    ? `${redirectSource}-full-form-bottom`
+    : "waitlist-page-bottom";
+
   return (
     <SiteFrame>
       <section className="bg-grid-soft px-4 pb-16 pt-28 sm:px-6 lg:px-10">
@@ -43,7 +89,7 @@ export default function WaitlistPage() {
             </div>
           </AnimatedSection>
 
-          <WaitlistForm source="waitlist-page-hero" />
+          <WaitlistForm source={heroSource} initialEmail={prefilledEmail} />
         </div>
       </section>
 
@@ -119,7 +165,11 @@ export default function WaitlistPage() {
             </p>
           </div>
 
-          <WaitlistForm source="waitlist-page-bottom" className="bg-cream text-ink" />
+          <WaitlistForm
+            source={bottomSource}
+            initialEmail={prefilledEmail}
+            className="bg-cream text-ink"
+          />
         </div>
       </AnimatedSection>
     </SiteFrame>

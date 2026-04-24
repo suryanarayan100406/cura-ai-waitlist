@@ -1,6 +1,7 @@
 export type WaitlistFunnelStep =
   | "form_view"
   | "submit_started"
+  | "redirect_to_full_form"
   | "submit_success"
   | "duplicate_email"
   | "validation_error"

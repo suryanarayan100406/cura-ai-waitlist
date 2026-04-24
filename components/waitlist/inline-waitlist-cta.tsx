@@ -1,13 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { trackWaitlistFunnel } from "@/lib/analytics";
-import { WAITLIST_USE_CASES } from "@/lib/content";
 import { quickWaitlistSchema } from "@/lib/waitlist-schema";
 
 const heroSchema = z.object({
@@ -19,12 +19,12 @@ type HeroFormValues = z.infer<typeof heroSchema>;
 const source = "hero-cta";
 
 export function InlineWaitlistCta() {
-  const [message, setMessage] = useState<string>("");
+  const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<HeroFormValues>({
     resolver: zodResolver(heroSchema),
@@ -37,51 +37,18 @@ export function InlineWaitlistCta() {
     });
   }, []);
 
-  const onSubmit = async (values: HeroFormValues) => {
-    setMessage("");
-
+  const onSubmit = (values: HeroFormValues) => {
     trackWaitlistFunnel("submit_started", source, {
       form_variant: "inline",
     });
 
-    try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "Homepage Visitor",
-          email: values.email,
-          use_case: WAITLIST_USE_CASES[0].value,
-          source,
-        }),
-      });
-      const data: { message?: string } = await response.json();
+    trackWaitlistFunnel("redirect_to_full_form", source, {
+      form_variant: "inline",
+    });
 
-      if (!response.ok) {
-        trackWaitlistFunnel(
-          response.status === 409 ? "duplicate_email" : "submit_failed",
-          source,
-          {
-            form_variant: "inline",
-            status_code: response.status,
-          }
-        );
-        setMessage(data.message ?? "Could not submit. Please try again.");
-        return;
-      }
-
-      trackWaitlistFunnel("submit_success", source, {
-        form_variant: "inline",
-      });
-      setMessage("You're in. We'll be in touch soon.");
-      reset({ email: "" });
-    } catch {
-      trackWaitlistFunnel("submit_failed", source, {
-        form_variant: "inline",
-        status_code: "network_error",
-      });
-      setMessage("Network error. Please try again.");
-    }
+    setIsRedirecting(true);
+    const target = `/waitlist?email=${encodeURIComponent(values.email)}&source=${source}`;
+    router.push(target);
   };
 
   const onInvalidSubmit = () => {
@@ -107,13 +74,13 @@ export function InlineWaitlistCta() {
         </div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isRedirecting}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-deep px-6 text-sm font-semibold text-cream transition hover:bg-brand-bright disabled:cursor-not-allowed"
         >
-          {isSubmitting ? (
+          {isSubmitting || isRedirecting ? (
             <>
               <LoaderCircle className="size-4 animate-spin" />
-              Joining...
+              Redirecting...
             </>
           ) : (
             "Join the Waitlist"
@@ -124,7 +91,6 @@ export function InlineWaitlistCta() {
       {errors.email ? (
         <p className="mt-2 text-sm text-coral">{errors.email.message}</p>
       ) : null}
-      {message ? <p className="mt-2 text-sm text-ink-soft">{message}</p> : null}
     </form>
   );
 }

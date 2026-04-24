@@ -37,25 +37,32 @@ interface WaitlistFormProps {
   source?: string;
   className?: string;
   showCount?: boolean;
+  initialEmail?: string;
 }
 
 export function WaitlistForm({
   source = "website",
   className,
   showCount = true,
+  initialEmail,
 }: WaitlistFormProps) {
   const [serverError, setServerError] = useState<string>("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [count, setCount] = useState(BASE_WAITLIST_COUNT);
 
+  const normalizedInitialEmail = useMemo(
+    () => initialEmail?.trim().toLowerCase() ?? "",
+    [initialEmail]
+  );
+
   const defaultValues = useMemo<WaitlistFormValues>(
     () => ({
       name: "",
-      email: "",
+      email: normalizedInitialEmail,
       phone: "",
       use_case: WAITLIST_USE_CASES[0].value,
     }),
-    []
+    [normalizedInitialEmail]
   );
 
   const {
