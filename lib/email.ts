@@ -22,10 +22,25 @@ function escapeHtml(input: string): string {
   return input.replace(/[&<>"']/g, (char) => map[char] ?? char);
 }
 
+function extractEmailAddress(value?: string): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const bracketMatch = value.match(/<([^>]+)>/);
+  const candidate = (bracketMatch ? bracketMatch[1] : value).trim();
+
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
+    return candidate;
+  }
+
+  return undefined;
+}
+
 function getEmailConfig() {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.WAITLIST_FROM_EMAIL;
-  const replyTo = process.env.WAITLIST_REPLY_TO;
+  const replyTo = process.env.WAITLIST_REPLY_TO || extractEmailAddress(from);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://curai.health";
 
   return {
